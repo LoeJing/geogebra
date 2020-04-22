@@ -2,6 +2,7 @@ package org.geogebra.common.kernel;
 
 import com.himamis.retex.editor.share.input.Character;
 import org.geogebra.common.euclidian.EuclidianConstants;
+import org.geogebra.common.euclidian.LayerManager;
 import org.geogebra.common.euclidian.event.PointerEventType;
 import org.geogebra.common.io.MyXMLio;
 import org.geogebra.common.kernel.algos.AlgoCasBase;
@@ -30,6 +31,7 @@ import org.geogebra.common.kernel.geos.GeoNumeric;
 import org.geogebra.common.kernel.geos.GeoPoint;
 import org.geogebra.common.kernel.geos.GeoSegment;
 import org.geogebra.common.kernel.geos.LabelManager;
+import org.geogebra.common.kernel.geos.groups.Group;
 import org.geogebra.common.kernel.kernelND.GeoAxisND;
 import org.geogebra.common.kernel.kernelND.GeoDirectionND;
 import org.geogebra.common.kernel.kernelND.GeoElementND;
@@ -200,6 +202,10 @@ public class Construction {
 	private boolean updateConstructionRunning;
 	private LabelManager labelManager;
 
+	private ArrayList<Group> groups;
+
+	private LayerManager layerManager;
+
 	/**
 	 * Creates a new Construction.
 	 * 
@@ -234,6 +240,8 @@ public class Construction {
 		euclidianViewCE = new ArrayList<>();
 		tempList = new ArrayList<>();
 
+		layerManager = new LayerManager();
+
 		if (parentConstruction != null) {
 			consDefaults = parentConstruction.getConstructionDefaults();
 		} else {
@@ -245,6 +253,7 @@ public class Construction {
 		setIgnoringNewTypes(false);
 		geoTable = new HashMap<>(200);
 		initGeoTables();
+		groups = new ArrayList<>();
 	}
 
 	/**
@@ -933,7 +942,8 @@ public class Construction {
 		int pos = ceList.indexOf(ce);
 		if (pos == -1) {
 			return;
-		} else if (pos <= step) {
+		}
+		if (pos <= step) {
 			ceList.remove(ce);
 			ce.setConstructionIndex(-1);
 			--step;
@@ -1320,9 +1330,17 @@ public class Construction {
 
 			getConstructionElementsXML(sb, getListenersToo);
 
+			getGroupsXML(sb);
+
 			sb.append("</construction>\n");
 		} catch (Exception e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void getGroupsXML(StringBuilder sb) {
+		for (Group gr : getGroups()) {
+			gr.getXML(sb);
 		}
 	}
 
@@ -2015,6 +2033,10 @@ public class Construction {
 		geoSetWithCasCells.add(geo);
 		geoSetLabelOrder.add(geo);
 
+		if (getApplication().isWhiteboardActive()) {
+			layerManager.addGeo(geo);
+		}
+
 		// get ordered type set
 		GeoClass type = geo.getGeoClassType();
 		TreeSet<GeoElement> typeSet = geoSetsTypeMap.get(type);
@@ -2068,19 +2090,16 @@ public class Construction {
 		geoSetWithCasCells.remove(geo);
 		geoSetLabelOrder.remove(geo);
 
+		if (getApplication().isWhiteboardActive()) {
+			layerManager.removeGeo(geo);
+		}
+
 		// set ordered type set
 		GeoClass type = geo.getGeoClassType();
 		TreeSet<GeoElement> typeSet = geoSetsTypeMap.get(type);
 		if (typeSet != null) {
 			typeSet.remove(geo);
 		}
-
-		/*
-		 * Application.debug("*** geoSet order (remove " + geo + ") ***");
-		 * Iterator it = geoSet.iterator(); int i = 0; while (it.hasNext()) {
-		 * GeoElement g = (GeoElement) it.next();
-		 * Application.debug(g.getConstructionIndex() + ": " + g); }
-		 */
 	}
 
 	/**
@@ -3058,6 +3077,8 @@ public class Construction {
 		geoSetWithCasCells.clear();
 		geoSetLabelOrder.clear();
 
+		layerManager.clear();
+
 		geoSetsTypeMap.clear();
 		euclidianViewCE.clear();
 
@@ -3078,6 +3099,8 @@ public class Construction {
 
 		usedMacros = null;
 		spreadsheetTraces = false;
+
+		groups.clear();
 	}
 
 	/**
@@ -3674,5 +3697,30 @@ public class Construction {
 
 	public boolean requires3D() {
 		return has3DObjects() || hasInputBoxes();
+	}
+
+	public ArrayList<Group> getGroups() {
+		return groups;
+	}
+
+	public void addGroupToGroupList(Group group) {
+		getGroups().add(group);
+	}
+
+	public void removeGroupFromGroupList(Group group) {
+		getGroups().remove(group);
+	}
+
+	/**
+	 * creates group of selected geos and adds it to the construction
+	 * @param geos - list of geos selected for grouping
+	 */
+	public void createGroup(ArrayList<GeoElement> geos) {
+		Group group = new Group(geos);
+		addGroupToGroupList(group);
+	}
+
+	public LayerManager getLayerManager() {
+		return layerManager;
 	}
 }

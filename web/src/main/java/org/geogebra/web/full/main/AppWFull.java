@@ -39,7 +39,6 @@ import org.geogebra.common.main.OpenFileListener;
 import org.geogebra.common.main.SaveController;
 import org.geogebra.common.main.ShareController;
 import org.geogebra.common.main.settings.updater.SettingsUpdaterBuilder;
-import org.geogebra.common.media.VideoManager;
 import org.geogebra.common.move.events.BaseEvent;
 import org.geogebra.common.move.events.StayLoggedOutEvent;
 import org.geogebra.common.move.ggtapi.TubeAvailabilityCheckEvent;
@@ -241,13 +240,6 @@ public class AppWFull extends AppW implements HasKeyboard, MenuViewListener {
 
 		this.euclidianViewPanel = new EuclidianDockPanelW(this,
 				allowStylebar());
-		this.canvas = this.euclidianViewPanel.getCanvas();
-		if (canvas != null) {
-			canvas.setWidth("1px");
-			canvas.setHeight("1px");
-			canvas.setCoordinateSpaceHeight(1);
-			canvas.setCoordinateSpaceWidth(1);
-		}
 		initCoreObjects();
 		checkExamPerspective();
 		afterCoreObjectsInited();
@@ -1296,8 +1288,8 @@ public class AppWFull extends AppW implements HasKeyboard, MenuViewListener {
 
 	@Override
 	public void executeAction(EventType action, AppState state, String[] args) {
-		if (action == EventType.EMBEDDED_STORE_UNDO) {
-			getEmbedManager().executeAction(EventType.REDO,
+		if (action == EventType.EMBEDDED_STORE_UNDO && embedManager != null) {
+			embedManager.executeAction(EventType.REDO,
 					Integer.parseInt(args[0]));
 		} else if (getPageController() != null) {
 			getPageController().executeAction(action, state, args);
@@ -2022,7 +2014,7 @@ public class AppWFull extends AppW implements HasKeyboard, MenuViewListener {
 	}
 
 	@Override
-	public final VideoManager getVideoManager() {
+	public final @Nonnull VideoManagerW getVideoManager() {
 		if (videoManager == null) {
 			videoManager = new VideoManagerW(this);
 		}
@@ -2035,6 +2027,19 @@ public class AppWFull extends AppW implements HasKeyboard, MenuViewListener {
 			maskWidgets = new MaskWidgetListW(this);
 		}
 		return maskWidgets;
+	}
+
+	/**
+	 * Remove all widgets for videos and embeds.
+	 */
+	@Override
+	public void clearMedia() {
+		if (videoManager != null) {
+			videoManager.removePlayers();
+		}
+		if (embedManager != null) {
+			embedManager.removeAll();
+		}
 	}
 
 	private int getSpHeight() {

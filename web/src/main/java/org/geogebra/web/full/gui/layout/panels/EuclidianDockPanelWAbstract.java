@@ -17,7 +17,6 @@ import org.geogebra.web.html5.gui.zoompanel.ZoomPanel;
 import org.geogebra.web.html5.main.AppW;
 import org.geogebra.web.html5.util.Dom;
 
-import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.dom.client.Style.Overflow;
 import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.FlowPanel;
@@ -256,11 +255,6 @@ public abstract class EuclidianDockPanelWAbstract extends DockPanelW
 	protected abstract EuclidianPanel getEuclidianPanel();
 
 	/**
-	 * @return (foreground) canvas of the view
-	 */
-	public abstract Canvas getCanvas();
-
-	/**
 	 * @return application
 	 */
 	public AppW getApp() {
@@ -270,7 +264,7 @@ public abstract class EuclidianDockPanelWAbstract extends DockPanelW
 	/**
 	 * @return panel for positioning overlay elements (e.g. input boxes)
 	 */
-	public final AbsolutePanel getAbsolutePanel() {
+	public final @CheckForNull AbsolutePanel getAbsolutePanel() {
 		return getEuclidianPanel() == null ? null : getEuclidianPanel()
 				.getAbsolutePanel();
 	}

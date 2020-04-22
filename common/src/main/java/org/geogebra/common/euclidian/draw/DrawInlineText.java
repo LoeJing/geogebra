@@ -8,6 +8,8 @@ import org.geogebra.common.awt.GAffineTransform;
 import org.geogebra.common.awt.GGraphics2D;
 import org.geogebra.common.awt.GPoint2D;
 import org.geogebra.common.awt.GRectangle;
+import org.geogebra.common.awt.GShape;
+import org.geogebra.common.euclidian.BoundingBox;
 import org.geogebra.common.euclidian.Drawable;
 import org.geogebra.common.euclidian.EuclidianBoundingBoxHandler;
 import org.geogebra.common.euclidian.EuclidianView;
@@ -121,28 +123,6 @@ public class DrawInlineText extends Drawable implements RemoveNeeded, DrawWidget
 		if (boundingBox != null) {
 			boundingBox.setRectangle(getBounds());
 			boundingBox.setTransform(directTransform);
-		}
-	}
-
-	/**
-	 * Send this to background
-	 */
-	public void toBackground() {
-		if (textController != null) {
-			textController.toBackground();
-		}
-	}
-
-	/**
-	 * Send this to foreground
-	 * @param x x mouse coordinates in pixels
-	 * @param y y mouse coordinates in pixels
-	 */
-	public void toForeground(int x, int y) {
-		if (textController != null) {
-			GPoint2D p = inverseTransform
-					.transform(new GPoint2D(x - PADDING, y - PADDING), null);
-			textController.toForeground((int) p.getX(), (int) p.getY());
 		}
 	}
 
@@ -288,6 +268,23 @@ public class DrawInlineText extends Drawable implements RemoveNeeded, DrawWidget
 	}
 
 	@Override
+	public int getEmbedID() {
+		return -1;
+	}
+
+	@Override
+	public boolean isBackground() {
+		return textController != null && textController.isBackground();
+	}
+
+	@Override
+	public void setBackground(boolean b) {
+		if (textController != null) {
+			textController.setBackground(b);
+		}
+	}
+
+	@Override
 	public void updateByBoundingBoxResize(GPoint2D point, EuclidianBoundingBoxHandler handler) {
 		GPoint2D transformed = inverseTransform.transform(point, null);
 
@@ -369,6 +366,19 @@ public class DrawInlineText extends Drawable implements RemoveNeeded, DrawWidget
 	}
 
 	/**
+	 * Set cursor to the given position
+	 * @param x screen coordinate
+	 * @param y screen coordinate
+	 */
+	public void setCursor(int x, int y) {
+		if (textController != null) {
+			GPoint2D p = inverseTransform
+					.transform(new GPoint2D(x - PADDING, y - PADDING), null);
+			textController.setCursor((int) p.getX(), (int) p.getY());
+		}
+	}
+
+	/**
 	 * @param key
 	 *            formatting option
 	 * @param val
@@ -423,7 +433,22 @@ public class DrawInlineText extends Drawable implements RemoveNeeded, DrawWidget
 		return "";
 	}
 
+	@Override
+	public BoundingBox<? extends GShape> getSelectionBoundingBox() {
+		return getBoundingBox();
+	}
+
 	public InlineTextController getTextController() {
 		return textController;
+	}
+
+	/**
+	 * Setter to mock Carota.
+	 * Nicer solutions are welcome.
+	 *
+	 * @param textController to set.
+	 */
+	public void setTextController(InlineTextController textController) {
+		this.textController = textController;
 	}
 }

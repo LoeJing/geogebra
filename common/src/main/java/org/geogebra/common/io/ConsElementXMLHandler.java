@@ -1700,6 +1700,14 @@ public class ConsElementXMLHandler {
 		}
 	}
 
+	private void handleOrdering(LinkedHashMap<String, String> attrs) {
+		try {
+			geo.setOrdering(Integer.parseInt(attrs.get("val")));
+		} catch (RuntimeException e) {
+			// no or incorrect ordering
+		}
+	}
+
 	private boolean handleObjColor(LinkedHashMap<String, String> attrs) {
 		GColor col = MyXMLHandler.handleColorAttrs(attrs);
 		if (col == null) {
@@ -2126,6 +2134,9 @@ public class ConsElementXMLHandler {
 			case "objColor":
 				handleObjColor(attrs);
 				break;
+			case "ordering":
+				handleOrdering(attrs);
+				break;
 			case "outlyingIntersections":
 				handleOutlyingIntersections(attrs);
 				break;
@@ -2537,6 +2548,22 @@ public class ConsElementXMLHandler {
 		} else {
 			docPointStyle = -1;
 		}
+	}
 
+	/**
+	 * parse list of geos in a group
+	 * @param attrs - labels of geos in the group
+	 */
+	public void handleGroup(LinkedHashMap<String, String> attrs) {
+		ArrayList<GeoElement> geosInGroup = new ArrayList<>();
+		for (String label : attrs.values()) {
+			GeoElement geo = xmlHandler.kernel.lookupLabel(label);
+			if (geo != null) {
+				geosInGroup.add(geo);
+			}
+		}
+		if (!geosInGroup.isEmpty()) {
+			app.getKernel().getConstruction().createGroup(geosInGroup);
+		}
 	}
 }

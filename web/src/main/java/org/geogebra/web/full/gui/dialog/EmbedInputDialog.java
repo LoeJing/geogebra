@@ -3,7 +3,7 @@ package org.geogebra.web.full.gui.dialog;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gwt.user.client.Window;
+import org.geogebra.common.euclidian.EmbedManager;
 import org.geogebra.common.euclidian.EuclidianConstants;
 import org.geogebra.common.kernel.ModeSetter;
 import org.geogebra.common.kernel.geos.GeoElement;
@@ -18,6 +18,7 @@ import org.geogebra.common.move.ggtapi.operations.URLStatus;
 import org.geogebra.common.move.ggtapi.requests.MaterialCallbackI;
 import org.geogebra.common.util.AsyncOperation;
 import org.geogebra.common.util.StringUtil;
+import org.geogebra.web.full.main.AppWFull;
 import org.geogebra.web.html5.main.AppW;
 import org.geogebra.web.shared.ggtapi.MarvlURLChecker;
 import org.geogebra.web.shared.ggtapi.models.GeoGebraTubeAPIW;
@@ -25,6 +26,7 @@ import org.geogebra.web.shared.ggtapi.models.GeoGebraTubeAPIW;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NodeList;
 import com.google.gwt.user.client.DOM;
+import com.google.gwt.user.client.Window;
 
 /**
  * @author csilla
@@ -39,7 +41,7 @@ public class EmbedInputDialog extends MediaDialog
 	 * @param app
 	 *            see {@link AppW}
 	 */
-	EmbedInputDialog(AppW app) {
+	EmbedInputDialog(AppWFull app) {
 		super(app.getPanel(), app);
 		if (Window.Location.getHost() != null
 				&& Window.Location.getHost().contains("geogebra")) {
@@ -113,7 +115,10 @@ public class EmbedInputDialog extends MediaDialog
 		ge.setUrl(url);
 		ge.setAppName("extension");
 		ge.initPosition(app.getActiveEuclidianView());
-		ge.setEmbedId(app.getEmbedManager().nextID());
+		EmbedManager embedManager = appW.getEmbedManager();
+		if (embedManager != null) {
+			ge.setEmbedId(embedManager.nextID());
+		}
 		ge.setLabel(null);
 		app.storeUndoInfo();
 
@@ -121,7 +126,12 @@ public class EmbedInputDialog extends MediaDialog
 	}
 
 	private void embedGeoGebraAndHide(Material material) {
-		getApplication().getEmbedManager().embed(material);
+		EmbedManager embedManager = appW.getEmbedManager();
+		if (embedManager != null) {
+			embedManager.embed(material);
+			appW.storeUndoInfo();
+		}
+
 		hide();
 	}
 

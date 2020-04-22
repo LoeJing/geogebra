@@ -1,6 +1,17 @@
 package org.geogebra.common.main;
 
-import com.himamis.retex.editor.share.util.Unicode;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Random;
+import java.util.Vector;
+
+import javax.annotation.CheckForNull;
+
 import org.geogebra.common.GeoGebraConstants;
 import org.geogebra.common.GeoGebraConstants.Platform;
 import org.geogebra.common.awt.GBufferedImage;
@@ -62,12 +73,15 @@ import org.geogebra.common.kernel.arithmetic.MyDouble;
 import org.geogebra.common.kernel.commands.CommandDispatcher;
 import org.geogebra.common.kernel.commands.Commands;
 import org.geogebra.common.kernel.commands.CommandsConstants;
+import org.geogebra.common.kernel.geos.DefaultGeoPriorityComparator;
 import org.geogebra.common.kernel.geos.GeoBoolean;
 import org.geogebra.common.kernel.geos.GeoElement;
 import org.geogebra.common.kernel.geos.GeoImage;
 import org.geogebra.common.kernel.geos.GeoInputBox;
 import org.geogebra.common.kernel.geos.GeoList;
 import org.geogebra.common.kernel.geos.GeoNumeric;
+import org.geogebra.common.kernel.geos.GeoPriorityComparator;
+import org.geogebra.common.kernel.geos.NotesPriorityComparator;
 import org.geogebra.common.kernel.geos.description.DefaultLabelDescriptionConverter;
 import org.geogebra.common.kernel.geos.description.ProtectiveLabelDescriptionConverter;
 import org.geogebra.common.kernel.kernelND.GeoElementND;
@@ -110,15 +124,7 @@ import org.geogebra.common.util.ToStringConverter;
 import org.geogebra.common.util.debug.Log;
 import org.geogebra.common.util.profiler.FpsProfiler;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Random;
-import java.util.Vector;
+import com.himamis.retex.editor.share.util.Unicode;
 
 /**
  * Represents an application window, gives access to views and system stuff
@@ -5002,7 +5008,7 @@ public abstract class App implements UpdateSelection, AppInterface, EuclidianHos
 		return md5Encrypter;
 	}
 
-	public EmbedManager getEmbedManager() {
+	public @CheckForNull EmbedManager getEmbedManager() {
 		return null;
 	}
 
@@ -5208,5 +5214,19 @@ public abstract class App implements UpdateSelection, AppInterface, EuclidianHos
 	 */
 	public void resetAlgebraOutputFilter() {
 		algebraOutputFilter = null;
+	}
+
+	/**
+	 * GeoPriorityComparators are used to decide the drawing
+	 * and selection orders of Geos
+	 * @return the default comparator (layer -> type -> construction order) in every
+	 * app except notes, where the geo's `ordering` is used
+	 */
+	public GeoPriorityComparator getGeoPriorityComparator() {
+		if (isWhiteboardActive()) {
+			return new NotesPriorityComparator();
+		} else {
+			return new DefaultGeoPriorityComparator();
+		}
 	}
 }
