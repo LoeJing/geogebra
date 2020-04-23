@@ -12,7 +12,6 @@ import javax.swing.JRootPane;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
-import com.himamis.retex.editor.desktop.MathFieldD;
 import org.geogebra.common.euclidian.EuclidianView;
 import org.geogebra.common.gui.inputfield.AutoCompleteTextField;
 import org.geogebra.common.kernel.StringTemplate;
@@ -32,6 +31,7 @@ import org.geogebra.desktop.gui.menubar.GeoGebraMenuBar;
 import org.geogebra.desktop.gui.util.OOMLConverter;
 import org.geogebra.desktop.util.UtilD;
 
+import com.himamis.retex.editor.desktop.MathFieldD;
 import com.himamis.retex.editor.share.util.KeyCodes;
 
 /**
