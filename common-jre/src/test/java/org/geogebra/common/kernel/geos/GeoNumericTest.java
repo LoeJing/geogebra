@@ -1,6 +1,7 @@
 package org.geogebra.common.kernel.geos;
 
 import org.geogebra.common.BaseUnitTest;
+import org.geogebra.common.main.settings.AppConfigCas;
 import org.geogebra.common.kernel.StringTemplate;
 import org.junit.Test;
 
@@ -44,5 +45,19 @@ public class GeoNumericTest extends BaseUnitTest {
 				numeric.getLaTeXAlgebraDescription(
 						false, StringTemplate.latexTemplate);
 		assertThat(description, equalTo("a\\, = \\,\\frac{1}{2}"));
+	}
+
+	@Test
+	public void testNumericIsNotDrawableInCas() {
+		getApp().setConfig(new AppConfigCas());
+		GeoNumeric numeric = addAvInput("2");
+		assertThat(numeric.isEuclidianShowable(), is(false));
+	}
+
+	@Test
+	public void testSliderIsVisibleInEv() {
+		GeoNumeric numeric = new GeoNumeric(getConstruction());
+		GeoNumeric.setSliderFromDefault(numeric, false);
+		assertThat(numeric.isEuclidianShowable(), is(true));
 	}
 }
