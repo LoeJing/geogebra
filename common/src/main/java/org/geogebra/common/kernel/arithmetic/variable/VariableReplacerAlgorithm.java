@@ -4,6 +4,7 @@ import org.geogebra.common.kernel.Kernel;
 import org.geogebra.common.kernel.arithmetic.ArcTrigReplacer;
 import org.geogebra.common.kernel.arithmetic.ExpressionNode;
 import org.geogebra.common.kernel.arithmetic.ExpressionValue;
+import org.geogebra.common.kernel.arithmetic.FunctionVariable;
 import org.geogebra.common.kernel.arithmetic.MyDouble;
 import org.geogebra.common.kernel.arithmetic.MySpecialDouble;
 import org.geogebra.common.kernel.arithmetic.variable.power.Exponents;
@@ -61,7 +62,7 @@ public class VariableReplacerAlgorithm {
 
 		exponents.initWithZero();
 
-		geo = productCreator.getProduct(expressionString);
+		geo = lookupOrProduct(expressionString);
 		if (geo != null) {
 			return geo;
 		}
@@ -89,18 +90,10 @@ public class VariableReplacerAlgorithm {
 		}
 
 		processPi();
-
-		MySpecialDouble mult = null;
+		MySpecialDouble mult = consumeConstant(nameNoX);
 
 		if (nameNoX.length() > 0 && geo == null) {
-
-			// eg pi8 (with Unicode pi)
-			if (StringUtil.isNumber(nameNoX)) {
-				double value = MyDouble.parseDouble(kernel.getLocalization(), nameNoX);
-				mult = new MySpecialDouble(kernel, value, nameNoX);
-			} else {
-				return new Variable(kernel, nameNoX);
-			}
+			return new Variable(kernel, nameNoX);
 		}
 		ExpressionNode ret = productCreator.getFunctionVariablePowers(exponents).wrap();
 		if (geo != null) {
@@ -124,6 +117,9 @@ public class VariableReplacerAlgorithm {
 			if (op != null) {
 				ExpressionValue arg = new VariableReplacerAlgorithm(kernel)
 						.replace(expressionString.substring(charIndex));
+				if (arg instanceof Variable) {
+					return arg;
+				}
 				if (arg != null) {
 					return arg.wrap().apply(op).traverse(
 							ArcTrigReplacer.getReplacer());
@@ -132,6 +128,22 @@ public class VariableReplacerAlgorithm {
 		}
 
 		return processProductReverse();
+	}
+
+	private MySpecialDouble consumeConstant(String expressionString) {
+		int numberLength = 0;
+		while (numberLength < expressionString.length()
+				&& StringUtil.isDigit(expressionString.charAt(numberLength))) {
+			numberLength++;
+		}
+		if (numberLength != 0) {
+			String num = nameNoX.substring(0, numberLength);
+			double value = MyDouble.parseDouble(kernel.getLocalization(), num);
+			nameNoX = nameNoX.substring(numberLength);
+			geo = lookupOrProduct(nameNoX);
+			return new MySpecialDouble(kernel, value, num);
+		}
+		return null;
 	}
 
 	private void processPi() {
@@ -150,7 +162,11 @@ public class VariableReplacerAlgorithm {
 	}
 
 	private ExpressionValue lookupOrProduct(String nameNoX) {
+		if (kernel.getConstruction().isRegistredFunctionVariable(nameNoX)) {
+			return new FunctionVariable(kernel, nameNoX);
+		}
 		ExpressionValue ret = kernel.lookupLabel(nameNoX);
+
 		if (ret == null && "i".equals(nameNoX)) {
 			ret = kernel.getImaginaryUnit();
 		}

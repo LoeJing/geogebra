@@ -117,8 +117,8 @@ public class ExpressionNode extends ValidExpression
 		setLeft(left);
 		if (right != null) {
 			setRight(right);
-		} else { // set dummy value
-			setRight(new MyDouble(kernel, Double.NaN));
+		} else {
+			unsetRight();
 		}
 	}
 
@@ -466,9 +466,13 @@ public class ExpressionNode extends ValidExpression
 			if (operation == Operation.POWER
 					|| operation == Operation.FACTORIAL) {
 				fixPowerFactorial(Operation.MULTIPLY);
+				fixPowerFactorialTrig();
 			}
 			if (operation == Operation.SQRT_SHORT) {
 				fixSqrtShort(Operation.MULTIPLY);
+			}
+			if (operation == Operation.MULTIPLY &&  isConstantDouble(right, Kernel.PI_180)) {
+				fixMultiplyDeg();
 			}
 		} else {
 			left.resolveVariables(info);
@@ -798,6 +802,39 @@ public class ExpressionNode extends ValidExpression
 					((ExpressionNode) left).getRight(), operation, right);
 			left = ((ExpressionNode) left).getLeft();
 			operation = Operation.MULTIPLY;
+		}
+	}
+
+	private void fixPowerFactorialTrig() {
+		if (isSingleArgumentFunction(left)) {
+			ExpressionValue trigArg = ((ExpressionNode) this.left).getLeft();
+			Operation leftOperation = ((ExpressionNode) left).operation;
+			// sinxyz^2 is parsed as sin(x y z)^2, change to sin(x y z^2)
+			if (trigArg.isExpressionNode()
+					&& ((ExpressionNode) trigArg).getOperation() == Operation.MULTIPLY) {
+				ExpressionNode trigArgExpr = (ExpressionNode) trigArg;
+				left = trigArgExpr.getRight().wrap()
+						.apply(operation, right).multiply(trigArgExpr.getLeft());
+			} else { // sinx^2 is parsed as sin(x)^2, change to sin(x^2)
+				this.left = new ExpressionNode(kernel, trigArg, operation, right);
+			}
+			unsetRight();
+			operation = leftOperation;
+		}
+	}
+
+	private boolean isSingleArgumentFunction(ExpressionValue left) {
+		return left.isExpressionNode()
+				&& Operation.isSimpleFunction(((ExpressionNode) left).operation)
+				&& !((ExpressionNode) left).hasBrackets();
+	}
+
+	private void fixMultiplyDeg() {
+		if (isSingleArgumentFunction(left)) {
+			operation = ((ExpressionNode) left).getOperation();
+			left = new ExpressionNode(kernel, ((ExpressionNode) left).getLeft(),
+					Operation.MULTIPLY, right);
+			unsetRight();
 		}
 	}
 
@@ -2375,7 +2412,7 @@ public class ExpressionNode extends ValidExpression
 							.toString(StringTemplate.defaultTemplate)
 							.equals("1")) {
 						if (operation != Operation.NROOT) {
-							setRight(new MyDouble(kernel, Double.NaN));
+							unsetRight();
 						}
 					} else { // to parse x^(c/2) to sqrt(x^c)
 						double c = 1;
@@ -2423,6 +2460,10 @@ public class ExpressionNode extends ValidExpression
 		}
 
 		return didReplacement;
+	}
+
+	private void unsetRight() {
+		setRight(new MyDouble(kernel, Double.NaN));
 	}
 
 	/**
