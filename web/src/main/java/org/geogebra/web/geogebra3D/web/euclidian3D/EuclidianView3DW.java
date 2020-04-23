@@ -183,7 +183,7 @@ public class EuclidianView3DW extends EuclidianView3D implements
 		Widget absPanel = euclidianViewPanel.getAbsolutePanel();
 		absPanel.addDomHandler(euclidiancontroller, MouseWheelEvent.getType());
 
-		if (Browser.supportsPointerEvents(true)) {
+		if (Browser.supportsPointerEvents()) {
 			PointerEventHandler pointerHandler = new PointerEventHandler(
 					(IsEuclidianController) euclidianController,
 					euclidiancontroller.getOffsets());
