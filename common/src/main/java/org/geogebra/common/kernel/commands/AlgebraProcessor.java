@@ -12,11 +12,9 @@ the Free Software Foundation.
 
 package org.geogebra.common.kernel.commands;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.TreeSet;
-
-import org.geogebra.common.gui.view.algebra.AlgebraItem;
+import com.google.gwt.regexp.shared.MatchResult;
+import com.google.gwt.regexp.shared.RegExp;
+import com.himamis.retex.editor.share.util.Unicode;
 import org.geogebra.common.io.MathMLParser;
 import org.geogebra.common.kernel.CircularDefinitionException;
 import org.geogebra.common.kernel.Construction;
@@ -126,9 +124,9 @@ import org.geogebra.common.util.MyMath;
 import org.geogebra.common.util.StringUtil;
 import org.geogebra.common.util.debug.Log;
 
-import com.google.gwt.regexp.shared.MatchResult;
-import com.google.gwt.regexp.shared.RegExp;
-import com.himamis.retex.editor.share.util.Unicode;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.TreeSet;
 
 /**
  * Processes algebra input as Strings and valid expressions into GeoElements
@@ -3165,9 +3163,6 @@ public class AlgebraProcessor {
 		}
 		if (ret instanceof HasExtendedAV) {
 			((HasExtendedAV) ret).setShowExtendedAV(info.isAutocreateSliders());
-			if (ret instanceof GeoNumeric) {
-				setupSlider((GeoNumeric) ret);
-			}
 		}
 		if (info.isLabelOutput()) {
 			String label = n.getLabel();
@@ -3177,18 +3172,6 @@ public class AlgebraProcessor {
 		}
 
 		return array(ret);
-	}
-
-	private void setupSlider(GeoNumeric numeric) {
-		if (app.getConfig().hasAutomaticSliders()
-				&& !numeric.isEuclidianVisible()
-				&& AlgebraItem.shouldShowSlider(numeric)
-				&& numeric.isVisible()
-				&& numeric.showInAlgebraView()
-				&& numeric.isSetAlgebraVisible()) {
-			numeric.setEuclidianVisible(true);
-			numeric.setEuclidianVisible(false);
-		}
 	}
 
 	/**
@@ -3420,7 +3403,6 @@ public class AlgebraProcessor {
 			vector.updateRepaint();
 		}
 		ret[0] = vector;
-
 		return ret;
 	}
 
