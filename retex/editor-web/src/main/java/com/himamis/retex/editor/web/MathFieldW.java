@@ -108,8 +108,6 @@ public class MathFieldW implements MathField, IsWidget, MathFieldAsync, BlurHand
 
 	private double scale = 1.0;
 
-	private FocusHandler focusHandler;
-
 	private SyntaxAdapter converter;
 
 	private ExpressionReader expressionReader;
@@ -125,8 +123,6 @@ public class MathFieldW implements MathField, IsWidget, MathFieldAsync, BlurHand
 	private int minHeight = 0;
 
 	/**
-<<<<<<< HEAD
-=======
 	 *
 	 * @param converter
 	 *            latex/mathml-&lt; ascii math converter (optional)
@@ -1184,7 +1180,4 @@ public class MathFieldW implements MathField, IsWidget, MathFieldAsync, BlurHand
 		this.minHeight = minHeight;
 	}
 
-	public void setFocusHandler(FocusHandler focusHandler) {
-		this.focusHandler = focusHandler;
-	}
 }
