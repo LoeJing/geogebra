@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import org.geogebra.common.awt.GPoint;
-import org.geogebra.common.euclidian.draw.DrawInlineText;
-import org.geogebra.common.euclidian.inline.InlineTextController;
 import org.geogebra.common.gui.ContextMenuGeoElement;
 import org.geogebra.common.gui.dialog.options.model.AngleArcSizeModel;
 import org.geogebra.common.gui.dialog.options.model.ConicEqnModel;

@@ -15,7 +15,6 @@ import org.geogebra.common.move.ggtapi.models.json.JSONObject;
 import org.geogebra.common.util.debug.Log;
 import org.geogebra.web.html5.euclidian.FontLoader;
 import org.geogebra.web.html5.euclidian.GGraphics2DWI;
-import org.geogebra.web.html5.util.Dom;
 import org.geogebra.web.richtext.Editor;
 import org.geogebra.web.richtext.impl.CarotaEditor;
 
