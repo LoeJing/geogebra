@@ -5,10 +5,24 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.geogebra.common.awt.GPoint2D;
+import org.geogebra.common.awt.GRectangle2D;
 import org.geogebra.common.euclidian.EuclidianView;
 import org.geogebra.common.euclidian.draw.DrawInlineText;
+import org.geogebra.common.euclidian.draw.DrawInline;
+import org.geogebra.common.kernel.Construction;
+import org.geogebra.common.kernel.Kernel;
+import org.geogebra.common.kernel.algos.AlgoElement;
+import org.geogebra.common.kernel.algos.AlgoInputBox;
+import org.geogebra.common.kernel.algos.ConstructionElement;
 import org.geogebra.common.kernel.geos.GeoElement;
+import org.geogebra.common.kernel.geos.GeoEmbed;
+import org.geogebra.common.kernel.geos.GeoImage;
+import org.geogebra.common.kernel.geos.GeoInline;
 import org.geogebra.common.kernel.geos.GeoInlineText;
+import org.geogebra.common.kernel.geos.GeoLocusStroke;
+import org.geogebra.common.kernel.geos.GeoWidget;
+import org.geogebra.common.kernel.geos.MoveGeos;
+import org.geogebra.common.kernel.matrix.Coords;
 import org.geogebra.common.main.App;
 import org.geogebra.common.move.ggtapi.models.json.JSONArray;
 import org.geogebra.common.move.ggtapi.models.json.JSONException;
@@ -77,7 +91,8 @@ public class CopyPasteW extends CopyPaste {
 
 	private static void saveToClipboard(String toSave) {
 		if (!Browser.isiOS()) {
-			String encoded = pastePrefix + GlobalFunctions.btoa(toSave);
+			String escapedContent = GlobalFunctions.escape(toSave);
+			String encoded = pastePrefix + GlobalFunctions.btoa(escapedContent);
 			writeToExternalClipboard(encoded);
 		}
 		Storage.getLocalStorageIfSupported().setItem(pastePrefix, toSave);
@@ -145,7 +160,8 @@ public class CopyPasteW extends CopyPaste {
 	@ExternalAccess
 	private static void pasteText(App app, String text) {
 		if (text.startsWith(pastePrefix)) {
-			pasteGeoGebraXML(app, GlobalFunctions.atob(text.substring(pastePrefix.length())));
+			String escapedContent = GlobalFunctions.atob(text.substring(pastePrefix.length()));
+			pasteGeoGebraXML(app, GlobalFunctions.unescape(escapedContent));
 		} else {
 			pastePlainText(app, text);
 		}
@@ -161,8 +177,8 @@ public class CopyPasteW extends CopyPaste {
 			final EuclidianView ev = app.getActiveEuclidianView();
 
 			final GeoInlineText txt = new GeoInlineText(app.getKernel().getConstruction(),
-					new GPoint2D(ev.toRealWorldCoordX(-defaultTextWidth), 0),
-					defaultTextWidth, GeoInlineText.DEFAULT_HEIGHT);
+					new GPoint2D(ev.toRealWorldCoordX(-defaultTextWidth), 0));
+			txt.setWidth(defaultTextWidth);
 			txt.setLabel(null);
 
 			JSONArray array = new JSONArray();

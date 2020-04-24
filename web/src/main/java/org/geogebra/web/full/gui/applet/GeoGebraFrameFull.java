@@ -398,8 +398,7 @@ public class GeoGebraFrameFull
 
 		app.updateSplitPanelHeight();
 
-		// TODO maybe too expensive?
-		app.updateCenterPanelAndViews();
+		app.updateViewSizes();
 		keyboardManager.addKeyboard(this);
 		keyBoard.setVisible(true);
 		app.centerAndResizeViews();

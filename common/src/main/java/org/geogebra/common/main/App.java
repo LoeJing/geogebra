@@ -30,6 +30,8 @@ import org.geogebra.common.euclidian.MaskWidgetList;
 import org.geogebra.common.euclidian.draw.DrawDropDownList;
 import org.geogebra.common.euclidian.event.AbstractEvent;
 import org.geogebra.common.euclidian.event.PointerEventType;
+import org.geogebra.common.euclidian.inline.InlineFormulaController;
+import org.geogebra.common.euclidian.inline.InlineTextController;
 import org.geogebra.common.euclidian.smallscreen.AdjustScreen;
 import org.geogebra.common.euclidian.smallscreen.AdjustViews;
 import org.geogebra.common.euclidian3D.EuclidianView3DInterface;
@@ -76,7 +78,9 @@ import org.geogebra.common.kernel.commands.CommandsConstants;
 import org.geogebra.common.kernel.geos.DefaultGeoPriorityComparator;
 import org.geogebra.common.kernel.geos.GeoBoolean;
 import org.geogebra.common.kernel.geos.GeoElement;
+import org.geogebra.common.kernel.geos.GeoFormula;
 import org.geogebra.common.kernel.geos.GeoImage;
+import org.geogebra.common.kernel.geos.GeoInlineText;
 import org.geogebra.common.kernel.geos.GeoInputBox;
 import org.geogebra.common.kernel.geos.GeoList;
 import org.geogebra.common.kernel.geos.GeoNumeric;
@@ -5228,5 +5232,24 @@ public abstract class App implements UpdateSelection, AppInterface, EuclidianHos
 		} else {
 			return new DefaultGeoPriorityComparator();
 		}
+	}
+
+	/**
+	 * Create an inline text controller iff the view supports inline text
+	 * editing.
+	 *
+	 * @param geo
+	 *            inline text
+	 *
+	 * @return an implementation of the text controller.
+	 */
+	public InlineTextController createInlineTextController(EuclidianView view,
+		   GeoInlineText geo) {
+		return null;
+	}
+
+	public InlineFormulaController createInlineFormulaController(EuclidianView view,
+			GeoFormula geo) {
+		return null;
 	}
 }

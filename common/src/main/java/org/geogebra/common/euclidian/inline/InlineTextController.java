@@ -1,4 +1,4 @@
-package org.geogebra.common.euclidian.text;
+package org.geogebra.common.euclidian.inline;
 
 import org.geogebra.common.awt.GAffineTransform;
 import org.geogebra.common.awt.GGraphics2D;
@@ -45,14 +45,12 @@ public interface InlineTextController {
 	/**
 	 * Put the editor behind the canvas
 	 */
-	void setBackground(boolean b);
-
-	boolean isBackground();
+	void toBackground();
 
 	/**
-	 * Set the cursor to the given position
+	 * Bring the editor to the foreground and start editing
 	 */
-	void setCursor(int x, int y);
+	void toForeground(int x, int y);
 
 	/**
 	 * @param key
