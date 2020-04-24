@@ -1629,7 +1629,7 @@ public abstract class AppW extends App implements SetLabels, HasLanguage {
 				}
 				if (app.isWhiteboardActive()) {
 					app.getActiveEuclidianView().getEuclidianController()
-							.selectAndShowBoundingBox(geoImage);
+							.selectAndShowSelectionUI(geoImage);
 				}
 				setDefaultCursor();
 				storeUndoInfo();

@@ -194,7 +194,7 @@ public class CopyPasteW extends CopyPaste {
 					));
 					drawText.update();
 
-					ev.getEuclidianController().selectAndShowBoundingBox(txt);
+					ev.getEuclidianController().selectAndShowSelectionUI(txt);
 					app.storeUndoInfo();
 				}
 			});
