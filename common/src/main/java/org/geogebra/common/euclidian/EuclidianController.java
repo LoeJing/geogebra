@@ -9911,7 +9911,6 @@ public abstract class EuclidianController implements SpecialPointsListener {
 		return draggingOccured && draggingBeyondThreshold;
 	}
 
-
 	private boolean handleInlineHit(AbstractEvent event) {
 		if (!moveMode(mode) || app.isRightClick(event) || view.getHits().isEmpty()
 				|| event.isControlDown()) {
