@@ -154,7 +154,9 @@ public class MathFieldW implements MathField, IsWidget, MathFieldAsync, BlurHand
 	 * @param directFormulaBuilder
 	 *            whether to convert content into JLM atoms directly without
 	 *            reparsing
-    */
+	 * @param metaModel
+	 *            model
+	 */
 	public MathFieldW(SyntaxAdapter converter, Panel parent, Canvas canvas,
 			MathFieldListener listener, boolean directFormulaBuilder, MetaModel metaModel) {
 
