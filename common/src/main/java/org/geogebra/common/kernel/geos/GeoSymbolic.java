@@ -691,4 +691,9 @@ public class GeoSymbolic extends GeoElement implements GeoSymbolicI, VarString,
 				? twinGeo.toLaTeXString(symbolic, tpl)
 				: super.toLaTeXString(symbolic, tpl);
 	}
+
+	@Override
+	public boolean isDrawable() {
+		return twinGeo != null ? twinGeo.isDrawable() : super.isDrawable();
+	}
 }
