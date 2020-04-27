@@ -10417,10 +10417,10 @@ public abstract class EuclidianController implements SpecialPointsListener {
 				selection.addSelectedGeoWithGroup(lastSelectionToolGeoToRemove);
 				maybeFocusGroupElement(lastSelectionToolGeoToRemove);
 				view.repaintView();
-				lastSelectionToolGeoToRemove = null;
 			} else {
 				selection.setFocusedGroupElement(null);
 			}
+			lastSelectionToolGeoToRemove = null;
 		}
 	}
 
