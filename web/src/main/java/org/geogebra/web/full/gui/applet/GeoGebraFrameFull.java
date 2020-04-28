@@ -299,10 +299,8 @@ public class GeoGebraFrameFull
 		keyBoard.remove(new Runnable() {
 			@Override
 			public void run() {
-
 				keyBoard.resetKeyboardState();
 				getApp().centerAndResizeViews();
-
 			}
 		});
 	}
