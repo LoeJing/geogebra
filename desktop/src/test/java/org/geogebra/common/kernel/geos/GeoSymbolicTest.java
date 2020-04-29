@@ -4,6 +4,7 @@ import static com.himamis.retex.editor.share.util.Unicode.EULER_STRING;
 import static com.himamis.retex.editor.share.util.Unicode.pi;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.AnyOf.anyOf;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -547,10 +548,9 @@ public class GeoSymbolicTest extends BaseSymbolicTest {
 	}
 
 	@Test
-	public void testAngleCommand() {
-		t("Angle((1,2),(3,4))", "cos\u207B\u00B9(11 * sqrt(5) / 25)");
-		// not working
-		// t("Angle[(a,b,c),(d,e,f),(g,h,i)]", "");
+	public void testAngleCommandFiltered() {
+		GeoSymbolic symbolic = add("Angle((1,2),(3,4))");
+		assertThat(symbolic, is(nullValue()));
 	}
 
 	@Test
@@ -1064,5 +1064,23 @@ public class GeoSymbolicTest extends BaseSymbolicTest {
 	 */
 	private void reload() {
 		app.setXML(app.getXML(), true);
+	}
+
+	@Test
+	public void testShorthandIfAccepted() {
+		kernel.setUndoActive(true);
+		kernel.initUndoInfo();
+		add("f(x)=x^2,x<5");
+		kernel.storeUndoInfo();
+		undoRedo();
+		GeoElement element = lookup("f");
+		assertThat(element.toString(StringTemplate.defaultTemplate),
+				equalTo("f(x) = If(5 > x,x²)"));
+	}
+
+	@Test
+	public void testIfArgumentFiltered() {
+		GeoSymbolic element = add("If(x>5, x^2, x<5, x)");
+		assertThat(element.getTwinGeo(), is(nullValue()));
 	}
 }
