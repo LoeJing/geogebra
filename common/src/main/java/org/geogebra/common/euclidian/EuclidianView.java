@@ -6122,14 +6122,6 @@ public abstract class EuclidianView implements EuclidianViewInterfaceCommon,
 		return axesNumberFormat[i];
 	}
 
-	protected void resetTextField() {
-		if (viewTextField == null) {
-			return;
-		}
-
-		viewTextField.reset();
-	}
-
 	/**
 	 * @return standard screen x-coord of origin
 	 */

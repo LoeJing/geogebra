@@ -1,8 +1,6 @@
 package org.geogebra.web.html5.gui;
 
-import com.google.gwt.dom.client.LinkElement;
 import org.geogebra.common.util.debug.Log;
-import org.geogebra.web.html5.Browser;
 import org.geogebra.web.html5.gui.laf.GLookAndFeelI;
 import org.geogebra.web.html5.js.ResourcesInjector;
 import org.geogebra.web.html5.main.AppW;
@@ -37,7 +35,7 @@ import java.util.ArrayList;
  * resize able)
  */
 public abstract class GeoGebraFrameW extends FlowPanel implements
-        HasAppletProperties {
+		HasAppletProperties {
 	private static final String APPLET_FOCUSED_CLASSNAME = "applet-focused";
 	private static final String APPLET_UNFOCUSED_CLASSNAME = "applet-unfocused";
 	private static ArrayList<GeoGebraFrameW> instances = new ArrayList<>();
@@ -49,8 +47,6 @@ public abstract class GeoGebraFrameW extends FlowPanel implements
 	 * Splash Dialog to get it work quickly
 	 */
 	private SplashDialog splash;
-
-	private LinkElement lastDummy = null;
 
 	private static final int LOGO_WIDTH = 427;
 
@@ -93,23 +89,20 @@ public abstract class GeoGebraFrameW extends FlowPanel implements
 	public GeoGebraFrameW(GLookAndFeelI laf, ArticleElementInterface articleElement) {
 		this(laf, ArticleElement.getDataParamFitToScreen(articleElement.getElement()));
 		this.articleElement = articleElement;
+
+		getElement().setTabIndex(0);
+		addFocusHandlers(articleElement.getElement());
 	}
 
-	/**
-	 * Add a dummy element to the frame
-	 */
-	protected void tackleLastDummy(Element element) {
-		if (!Browser.needsAccessibilityView()) {
-			lastDummy = DOM.createSpan().cast();
-			lastDummy.setTabIndex(0);
-			lastDummy.addClassName("geogebraweb-dummy-invisible");
-			element.appendChild(lastDummy);
-		}
-	}
-
-	public Element getLastElement() {
-		return lastDummy;
-	}
+	private native void addFocusHandlers(Element e) /*-{
+		var that = this;
+		e.addEventListener('focusin', function() {
+			that.@org.geogebra.web.html5.gui.GeoGebraFrameW::useFocusedBorder()();
+		});
+		e.addEventListener('focusout', function() {
+			that.@org.geogebra.web.html5.gui.GeoGebraFrameW::useDataParamBorder()();
+		});
+	}-*/;
 
 	/**
 	 * The application loading continues in the splashDialog onLoad handler
@@ -151,13 +144,13 @@ public abstract class GeoGebraFrameW extends FlowPanel implements
 			// Styleshet not loaded yet, add CSS directly
 			splash.getElement().getStyle().setPosition(Position.RELATIVE);
 			splash.getElement().getStyle()
-			        .setTop((height / 2) - (splashHeight / 2), Unit.PX);
+					.setTop((height / 2) - (splashHeight / 2), Unit.PX);
 			if (!articleElement.isRTL()) {
 				splash.getElement().getStyle()
-				        .setLeft((width / 2) - (splashWidth / 2), Unit.PX);
+						.setLeft((width / 2) - (splashWidth / 2), Unit.PX);
 			} else {
 				splash.getElement().getStyle()
-				        .setRight((width / 2) - (splashWidth / 2), Unit.PX);
+						.setRight((width / 2) - (splashWidth / 2), Unit.PX);
 			}
 			useDataParamBorder();
 		}
@@ -396,7 +389,6 @@ public abstract class GeoGebraFrameW extends FlowPanel implements
 	 * or leaves it invisible if "none" was set.
 	 */
 	public void useDataParamBorder() {
-		// Log.debug("useDataParamBorder - " + articleElement.getClassName());
 		String dpBorder = articleElement.getDataParamBorder();
 		int thickness = articleElement.getBorderThickness() / 2;
 		if (dpBorder != null) {
@@ -414,58 +406,18 @@ public abstract class GeoGebraFrameW extends FlowPanel implements
 	}
 
 	/**
-	 * @param ae
-	 *            article element
-	 * @param gfE
-	 *            app frame element
-	 */
-	public static void useDataParamBorder(ArticleElement ae, Element gfE) {
-		// Log.debug("useDataParamBorder - " + ae.getClassName());
-		String dpBorder = ae.getDataParamBorder();
-		int thickness = ae.getBorderThickness() / 2;
-		if (dpBorder != null) {
-			if ("none".equals(dpBorder)) {
-				setBorder(ae, gfE, "transparent", thickness);
-			} else {
-				setBorder(ae, gfE, dpBorder, thickness);
-			}
-		}
-		gfE.removeClassName(APPLET_FOCUSED_CLASSNAME);
-		gfE.addClassName(APPLET_UNFOCUSED_CLASSNAME);
-	}
-
-	/**
 	 * Sets the border around the canvas to be highlighted. At the moment we use
 	 * "#9999ff" for this purpose.
 	 */
 	public void useFocusedBorder() {
-		// Log.debug("useFocusedBorder - " + articleElement.getClassName());
 		String dpBorder = articleElement.getDataParamBorder();
 		getElement().removeClassName(
 				APPLET_UNFOCUSED_CLASSNAME);
 		getElement()
 				.addClassName(APPLET_FOCUSED_CLASSNAME);
 		int thickness = articleElement.getBorderThickness() / 2;
-		if (dpBorder != null && "none".equals(dpBorder)) {
+		if ("none".equals(dpBorder)) {
 			setBorder("transparent", thickness);
-		}
-	}
-
-	/**
-	 * @param ae
-	 *            article element
-	 * @param gfE
-	 *            app frame element
-	 */
-	public static void useFocusedBorder(ArticleElement ae, Element gfE) {
-		// Log.debug("useFocusedBorder - " + articleElement.getClassName());
-		String dpBorder = ae.getDataParamBorder();
-		gfE.removeClassName(APPLET_UNFOCUSED_CLASSNAME);
-		gfE.addClassName(APPLET_FOCUSED_CLASSNAME);
-		int thickness = ae.getBorderThickness() / 2;
-		if (dpBorder != null && "none".equals(dpBorder)) {
-			setBorder(ae, gfE, "transparent", thickness);
-			return;
 		}
 	}
 
@@ -656,7 +608,7 @@ public abstract class GeoGebraFrameW extends FlowPanel implements
 	 *
 	 */
 	public static void renderArticleElementWithFrame(final Element element,
-	        GeoGebraFrameW frame, JavaScriptObject onLoadCallback) {
+			GeoGebraFrameW frame, JavaScriptObject onLoadCallback) {
 
 		final ArticleElement article = ArticleElement.as(element);
 		if (Log.getLogger() == null) {
@@ -690,9 +642,7 @@ public abstract class GeoGebraFrameW extends FlowPanel implements
 	public void remove() {
 		removeFromParent();
 		// this does not do anything!
-		GeoGebraFrameW.getInstances()
-				.remove(
-		        GeoGebraFrameW.getInstances().indexOf(this));
+		GeoGebraFrameW.getInstances().remove(this);
 		articleElement.getElement().removeFromParent();
 		articleElement = null;
 		app = null;

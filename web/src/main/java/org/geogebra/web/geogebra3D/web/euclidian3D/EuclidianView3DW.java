@@ -45,10 +45,6 @@ import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.Style;
-import com.google.gwt.event.dom.client.BlurEvent;
-import com.google.gwt.event.dom.client.BlurHandler;
-import com.google.gwt.event.dom.client.FocusEvent;
-import com.google.gwt.event.dom.client.FocusHandler;
 import com.google.gwt.event.dom.client.GestureChangeEvent;
 import com.google.gwt.event.dom.client.GestureEndEvent;
 import com.google.gwt.event.dom.client.GestureStartEvent;
@@ -76,8 +72,6 @@ public class EuclidianView3DW extends EuclidianView3D implements
 		EuclidianViewWInterface {
 
 	private EuclidianPanelWAbstract evPanel;
-
-	private boolean isInFocus = false;
 
 	/** graphics */
 	private GGraphics2DWI g2p = null;
@@ -130,21 +124,6 @@ public class EuclidianView3DW extends EuclidianView3D implements
 		registerMouseTouchGestureHandlers(euclidianViewPanel,
 		        (EuclidianController3DW) euclidiancontroller);
 
-		if (canvas != null) {
-			canvas.addBlurHandler(new BlurHandler() {
-				@Override
-				public void onBlur(BlurEvent be) {
-					focusLost();
-				}
-			});
-
-			canvas.addFocusHandler(new FocusHandler() {
-				@Override
-				public void onFocus(FocusEvent fe) {
-					focusGained();
-				}
-			});
-		}
 		EuclidianSettings es = this.app.getSettings().getEuclidian(3);
 		settingsChanged(es);
 		es.addListener(this);
@@ -208,35 +187,6 @@ public class EuclidianView3DW extends EuclidianView3D implements
 			absPanel.addDomHandler(euclidiancontroller, GestureChangeEvent.getType());
 			absPanel.addDomHandler(euclidiancontroller, GestureEndEvent.getType());
 		}
-	}
-
-	/**
-	 * Callback for blur event
-	 */
-	public void focusLost() {
-		if (isInFocus) {
-			this.isInFocus = false;
-			if (getCanvasElement() != null) {
-				((AppW) this.app).focusLost(this, getCanvasElement());
-			}
-		}
-	}
-
-	/**
-	 * Callback for focus event
-	 */
-	public void focusGained() {
-		if (!isInFocus) {
-			this.isInFocus = true;
-			if (getCanvasElement() != null) {
-				((AppW) this.app).focusGained(this, getCanvasElement());
-			}
-		}
-	}
-
-	@Override
-	public boolean isInFocus() {
-		return isInFocus;
 	}
 
 	/**
@@ -399,7 +349,6 @@ public class EuclidianView3DW extends EuclidianView3D implements
 	@Override
 	public boolean requestFocusInWindow() {
 		g2p.getElement().focus();
-		focusGained();
 		return true;
 	}
 
