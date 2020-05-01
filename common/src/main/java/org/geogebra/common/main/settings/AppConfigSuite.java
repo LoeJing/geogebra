@@ -1,6 +1,5 @@
 package org.geogebra.common.main.settings;
 
-import org.geogebra.common.GeoGebraConstants;
 import org.geogebra.common.gui.toolcategorization.AppType;
 import org.geogebra.common.kernel.arithmetic.filter.OperationArgumentFilter;
 import org.geogebra.common.kernel.commands.filter.CommandArgumentFilter;
@@ -92,4 +91,10 @@ public class AppConfigSuite extends AppConfigGraphing {
 	public boolean hasAnsButtonInAv() {
 		return false;
 	}
+
+	@Override
+	public GeoGebraConstants.Version getVersion() {
+		return GeoGebraConstants.Version.SUITE;
+	}
+
 }
