@@ -3,7 +3,6 @@ package org.geogebra.common.kernel;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.TreeSet;
@@ -5009,18 +5008,9 @@ public class Kernel implements SpecialPointsListener, ConstructionStepper {
 	 * Recompute CAS algos. Used by web once CAS is loaded.
 	 */
 	public void refreshCASCommands() {
-
 		clearCasCache();
-		cons.recomputeCASalgos();
-		TreeSet<GeoElement> treeset = new TreeSet<>(
-				getConstruction().getGeoSetWithCasCellsConstructionOrder());
 
-		ArrayList<GeoElement> al = new ArrayList<>();
-
-		Iterator<GeoElement> it = treeset.iterator();
-
-		while (it.hasNext()) {
-			GeoElement geo = it.next();
+		for (GeoElement geo : cons.getGeoSetWithCasCellsConstructionOrder()) {
 			if (geo instanceof FunctionalNVar) {
 				FunctionNVar fun = ((FunctionalNVar) geo).getFunction();
 
@@ -5030,28 +5020,32 @@ public class Kernel implements SpecialPointsListener, ConstructionStepper {
 			} else if (geo instanceof GeoCurveCartesianND) {
 				GeoCurveCartesianND curve = (GeoCurveCartesian) geo;
 				curve.clearCasEvalMap("");
+			} else if (geo instanceof GeoSymbolicI && geo.getParentAlgorithm() == null) {
+				((GeoSymbolicI) geo).computeOutput();
 			}
-			AlgoElement algo = geo.getParentAlgorithm();
+		}
 
+		cons.setUpdateConstructionRunning(true);
+		for (AlgoElement algo : cons.getAlgoList()) {
 			if (algo instanceof AlgoCasBase) {
 				((AlgoCasBase) algo).clearCasEvalMap("");
-				algo.compute();
-			} else if (algo instanceof AlgoUsingTempCASalgo) {
+			}
+			if (algo instanceof AlgoUsingTempCASalgo) {
 				((AlgoUsingTempCASalgo) algo).refreshCASResults();
-				algo.compute();
-			} else if (algo instanceof UsesCAS
-					|| algo instanceof AlgoCasCellInterface) {
+			}
+
+			if (algo instanceof UsesCAS || algo instanceof AlgoCasCellInterface) {
 				// eg Limit, LimitAbove, LimitBelow, SolveODE
 				// AlgoCasCellInterface: eg Solve[x^2]
 				algo.compute();
+
+				if (algo.getOutput() != null) {
+					for (GeoElement output : algo.getOutput()) {
+						output.updateCascade();
+					}
+				}
 			}
-			if (geo instanceof GeoSymbolicI && algo == null) {
-				((GeoSymbolicI) geo).computeOutput();
-			}
-			al.add(geo);
 		}
-		cons.setUpdateConstructionRunning(true);
-		GeoElement.updateCascade(al, new TreeSet<AlgoElement>(), true);
 		cons.setUpdateConstructionRunning(false);
 	}
 

@@ -158,8 +158,6 @@ public class Construction {
 
 	private final TreeSet<String> casDummies = new TreeSet<>();
 
-	private ArrayList<AlgoElement> casAlgos = new ArrayList<>();
-
 	/**
 	 * Table for (label, GeoCasCell) pairs, contains global variables used in
 	 * CAS view
@@ -3422,40 +3420,6 @@ public class Construction {
 	 */
 	public boolean isAllowUnboundedAngles() {
 		return this.allowUnboundedAngles;
-	}
-
-	/**
-	 * Add algo to a list of algos that need update after CAS load
-	 * 
-	 * @param casAlgo
-	 *            algo using CAS
-	 */
-	public void addCASAlgo(AlgoElement casAlgo) {
-		casAlgos.add(casAlgo);
-	}
-
-	/**
-	 * Recompute all algos using CASS and dependent CAS cells
-	 */
-	public void recomputeCASalgos() {
-		for (AlgoElement algo : casAlgos) {
-			if (algo.getOutput() != null && !algo.getOutput(0).isLabelSet()) {
-				if (algo instanceof AlgoCasBase) {
-					((AlgoCasBase) algo).clearCasEvalMap("");
-					algo.compute();
-				} else if (algo instanceof AlgoUsingTempCASalgo) {
-					((AlgoUsingTempCASalgo) algo).refreshCASResults();
-					algo.compute();
-				} else if (algo instanceof UsesCAS
-						|| algo instanceof AlgoCasCellInterface) {
-					// eg Limit, LimitAbove, LimitBelow, SolveODE
-					// AlgoCasCellInterface: eg Solve[x^2]
-					algo.compute();
-				}
-				algo.getOutput(0).updateCascade();
-			}
-		}
-		casAlgos.clear();
 	}
 
 	/**
